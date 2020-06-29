@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id="welcomeService" class="cn.com.yuns.service.impl.WelcomeServiceImpl"/>
+
+	<!-- 使用类的无参构造函数创建 -->
+	<bean id="user1" class="cn.com.yuns.entity.User" scope="singleton" lazy-init="true" primary="true"/>
+	<alias name="user1" alias="aliasUSer1,aliasUSer2,aliasUSer3"/>
+	<!-- 使用静态工厂进行创建 -->
+	<!-- class的值不是写User的全路径值，而是静态工厂的全路径值 -->
+	<!-- factory-method 的值写的是需要调用的方法 -->
+	<bean id="user2" class="cn.com.yuns.entity.factory.StaticFactory" factory-method="getUser" scope="singleton"/>
+
+
+	<!-- 使用实例工厂进行创建 -->
+	<!-- 需要先创建factoryBean 对象 再通过factoryBean 对象进行调用 -->
+	<bean id="userFactory" class="cn.com.yuns.entity.factory.UserFactory"/>
+	<bean id="user3" factory-bean="userFactory" factory-method="getUser" scope="singleton"/>
+
+	<bean id="userFactoryBean" class="cn.com.yuns.entity.factory.UserFactoryBean"/>
+</beans>
