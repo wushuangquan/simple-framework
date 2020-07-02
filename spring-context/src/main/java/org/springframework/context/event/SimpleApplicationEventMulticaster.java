@@ -129,13 +129,22 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
 	@Override
 	public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
+		//获取事件类型
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
 		Executor executor = getTaskExecutor();
+		// 遍历所有和事件 匹配的事件监听器
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
+			//若执行器实例Executor未设置,则进行同步回调,即在当前线程执行监听器的回调方法
+			//若用户设置了Executor实例(通常而言是线程池),则会进行异步回调,监听器的监听方法会交由线程池中的线程去执行。
+			//默认情况下容器不会为用户创建执行器实例,因而对监听器的回调是同步进行的,即所有监听器的监听方法都在推送事件的线程中被执行,通常这也是处理业务逻辑的线程,若其中一个监听器回调执行
+			//阻塞,则会阻塞整个业务处理的线程,造成严重的后果。而异步回调的方式,虽然不会导致业务处理线程被阻塞,但是不能共享一些业务线程的上下文资源,比如类加载器,事务等等。因而究竟选择哪种回调
+			//方式,要视具体业务场景而定。
 			if (executor != null) {
+				//异步 回调 监听方法
 				executor.execute(() -> invokeListener(listener, event));
 			}
 			else {
+				// 同步回调监听方法
 				invokeListener(listener, event);
 			}
 		}

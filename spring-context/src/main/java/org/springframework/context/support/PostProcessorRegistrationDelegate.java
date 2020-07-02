@@ -60,6 +60,7 @@ final class PostProcessorRegistrationDelegate {
 	 * 然后执行实现了 Order 接口的（按照 Order定义的顺序执行），最后才执行没有实现这两个接口的
 	 * @param beanFactory 应用上下文的 BeanFactory 实例
 	 * @param beanFactoryPostProcessors 应用上下文指定要执行的 beanFactoryPostProcessors
+	 *
 	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
@@ -297,12 +298,11 @@ final class PostProcessorRegistrationDelegate {
 		postProcessors.sort(comparatorToUse);
 	}
 
-	/**
-	 * Invoke the given BeanDefinitionRegistryPostProcessor beans.
-	 */
+
 	private static void invokeBeanDefinitionRegistryPostProcessors(
 			Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry) {
-
+		//postProcessors 列表里面的所有类都继承自同一个接口 BeanDefinitionRegistryPostProcessor
+		//挨个去执行接口里面的同一个方法
 		for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
 			postProcessor.postProcessBeanDefinitionRegistry(registry);
 		}

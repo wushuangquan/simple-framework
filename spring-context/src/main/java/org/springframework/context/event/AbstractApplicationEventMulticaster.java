@@ -63,8 +63,10 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractApplicationEventMulticaster
 		implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
+	//保存所有事件监听器及其 beanName
 	private final ListenerRetriever defaultRetriever = new ListenerRetriever(false);
 
+	//缓存 事件监听器 key 为包含事件类型和事件源类型的 ListenerCacheKey； value 为 包含 监听器列表和监听器 beanName列表 的 ListenerRetriever
 	final Map<ListenerCacheKey, ListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
 
 	@Nullable
@@ -119,6 +121,7 @@ public abstract class AbstractApplicationEventMulticaster
 	@Override
 	public void addApplicationListenerBean(String listenerBeanName) {
 		synchronized (this.retrievalMutex) {
+			//保存所有监听器的 beanName
 			this.defaultRetriever.applicationListenerBeans.add(listenerBeanName);
 			this.retrieverCache.clear();
 		}
@@ -172,14 +175,18 @@ public abstract class AbstractApplicationEventMulticaster
 	 */
 	protected Collection<ApplicationListener<?>> getApplicationListeners(
 			ApplicationEvent event, ResolvableType eventType) {
-
+		//获取事件源 对象
 		Object source = event.getSource();
+		// 获取 事件源类型
 		Class<?> sourceType = (source != null ? source.getClass() : null);
+		//以 事件类型 和 事件源类型 为参数构建一个cacheKey,用于从缓存map中获取与之匹配的监听器列表
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
 		// Quick check for existing entry on ConcurrentHashMap...
+		//这个 retrieverCache  定义在事件发布器的抽象类中
 		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);
 		if (retriever != null) {
+			// 从 缓存中获取监听器列表
 			return retriever.getApplicationListeners();
 		}
 
@@ -193,8 +200,10 @@ public abstract class AbstractApplicationEventMulticaster
 					return retriever.getApplicationListeners();
 				}
 				retriever = new ListenerRetriever(true);
+				// 查找 所有与 发布事件匹配的 监听器
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
+				//将匹配结果缓存到 map
 				this.retrieverCache.put(cacheKey, retriever);
 				return listeners;
 			}
@@ -214,7 +223,7 @@ public abstract class AbstractApplicationEventMulticaster
 	 */
 	private Collection<ApplicationListener<?>> retrieveApplicationListeners(
 			ResolvableType eventType, @Nullable Class<?> sourceType, @Nullable ListenerRetriever retriever) {
-
+		//存放 匹配上的监听器列表
 		List<ApplicationListener<?>> allListeners = new ArrayList<>();
 		Set<ApplicationListener<?>> listeners;
 		Set<String> listenerBeans;
@@ -272,7 +281,7 @@ public abstract class AbstractApplicationEventMulticaster
 				}
 			}
 		}
-
+		// 对匹配上的 监听器 进行排序
 		AnnotationAwareOrderComparator.sort(allListeners);
 		if (retriever != null && retriever.applicationListenerBeans.isEmpty()) {
 			retriever.applicationListeners.clear();
@@ -347,9 +356,11 @@ public abstract class AbstractApplicationEventMulticaster
 	 */
 	protected boolean supportsEvent(
 			ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
-
+		// 对原始的ApplicationListener进行一层适配器包装成为GenericApplicationListener
 		GenericApplicationListener smartListener = (listener instanceof GenericApplicationListener ?
 				(GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener));
+		// 返回 监听器是否和 事件 及 事件源 匹配-- 是否是监听器感兴趣的事件
+		// 只要 监听器泛型的实际类型  和  发布的事件类型一样或是它的父类型,  则该监听器将被成功匹配。
 		return (smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType));
 	}
 
@@ -417,8 +428,10 @@ public abstract class AbstractApplicationEventMulticaster
 	 */
 	private class ListenerRetriever {
 
+		//所有事件监听器 存储的 地方
 		public final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
+		//所有事件监听器 beanName 存储的地方
 		public final Set<String> applicationListenerBeans = new LinkedHashSet<>();
 
 		private final boolean preFiltered;

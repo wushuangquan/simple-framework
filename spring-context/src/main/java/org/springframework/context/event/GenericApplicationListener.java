@@ -39,6 +39,9 @@ public interface GenericApplicationListener extends ApplicationListener<Applicat
 	/**
 	 * Determine whether this listener actually supports the given event type.
 	 * @param eventType the event type (never {@code null})
+	 * 判断事件类型 是否和当前 监听者匹配--基于这个方法 筛选监听者感兴趣的事件
+	 *  事件类型 ResolvableType
+	 *   是Spring 4 之后添加的 获取泛型信息的工具，通过这个工具类可以获取到传入的 泛型的各种信息
 	 */
 	boolean supportsEventType(ResolvableType eventType);
 
@@ -46,6 +49,7 @@ public interface GenericApplicationListener extends ApplicationListener<Applicat
 	 * Determine whether this listener actually supports the given source type.
 	 * <p>The default implementation always returns {@code true}.
 	 * @param sourceType the source type, or {@code null} if no source
+	 * 判断事件源类型 是否和当前 监听者匹配 -- 基于这个方法 筛选监听者感兴趣的事件源
 	 */
 	default boolean supportsSourceType(@Nullable Class<?> sourceType) {
 		return true;

@@ -32,12 +32,15 @@ import org.springframework.lang.Nullable;
  * @since 3.0
  * @see GenericApplicationListener
  * @see GenericApplicationListenerAdapter
+ * 实现 Ordered 接口 支持排序功能 ，对监听器进行排序
  */
+//实现 Ordered 接口 支持排序功能 ，对监听器进行排序
 public interface SmartApplicationListener extends ApplicationListener<ApplicationEvent>, Ordered {
 
 	/**
 	 * Determine whether this listener actually supports the given event type.
 	 * @param eventType the event type (never {@code null})
+	 * 判断事件类型 是否和当前 监听者匹配--基于这个方法 筛选监听者感兴趣的事件
 	 */
 	boolean supportsEventType(Class<? extends ApplicationEvent> eventType);
 
@@ -45,6 +48,7 @@ public interface SmartApplicationListener extends ApplicationListener<Applicatio
 	 * Determine whether this listener actually supports the given source type.
 	 * <p>The default implementation always returns {@code true}.
 	 * @param sourceType the source type, or {@code null} if no source
+	 * 判断事件源类型 是否和当前 监听者匹配 -- 基于这个方法 筛选监听者感兴趣的事件源
 	 */
 	default boolean supportsSourceType(@Nullable Class<?> sourceType) {
 		return true;

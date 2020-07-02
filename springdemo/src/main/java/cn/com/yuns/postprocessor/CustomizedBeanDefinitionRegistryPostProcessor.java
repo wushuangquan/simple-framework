@@ -12,9 +12,12 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author wsq
  * @version CustomizedBeanDefinitionRegistryPostProcessor.java  2020/6/29  上午9:02 上午
+ * 这个功能可以做什么事情？可以在这个接口里面搜索第三方的 Class,并将这些Class注册进Spring 容器中，这样就可以在复用第三方
+ * 代码；mybatis框架就是这么做的
  */
 @Configuration
 public class CustomizedBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+
 
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
