@@ -102,10 +102,13 @@ public class EventListenerMethodProcessor
 		ConfigurableListableBeanFactory beanFactory = this.beanFactory;
 		Assert.state(this.beanFactory != null, "No ConfigurableListableBeanFactory set");
 		String[] beanNames = beanFactory.getBeanNamesForType(Object.class);
+		//逐个遍历 Bean 容器里面的 Bean
 		for (String beanName : beanNames) {
+			// Bean 不是 scopedTarget.  开头的 --- 不是Spring 自带的 Bean
 			if (!ScopedProxyUtils.isScopedTarget(beanName)) {
 				Class<?> type = null;
 				try {
+					//获取 Bean 的类型
 					type = AutoProxyUtils.determineTargetClass(beanFactory, beanName);
 				}
 				catch (Throwable ex) {
@@ -131,6 +134,7 @@ public class EventListenerMethodProcessor
 						}
 					}
 					try {
+						//
 						processBean(beanName, type);
 					}
 					catch (Throwable ex) {
@@ -143,12 +147,14 @@ public class EventListenerMethodProcessor
 	}
 
 	private void processBean(final String beanName, final Class<?> targetType) {
+		//非处理过的类---非Spring 内部类才进行处理 且有 EventListener 注解
 		if (!this.nonAnnotatedClasses.contains(targetType) &&
 				AnnotationUtils.isCandidateClass(targetType, EventListener.class) &&
 				!isSpringContainerClass(targetType)) {
 
 			Map<Method, EventListener> annotatedMethods = null;
 			try {
+				//提取 被@EventListener标记的方法实例
 				annotatedMethods = MethodIntrospector.selectMethods(targetType,
 						(MethodIntrospector.MetadataLookup<EventListener>) method ->
 								AnnotatedElementUtils.findMergedAnnotation(method, EventListener.class));
@@ -175,6 +181,7 @@ public class EventListenerMethodProcessor
 				for (Method method : annotatedMethods.keySet()) {
 					for (EventListenerFactory factory : factories) {
 						if (factory.supportsMethod(method)) {
+							//转换成事件监听器实例并注册到容器中
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
 							ApplicationListener<?> applicationListener =
 									factory.createApplicationListener(beanName, targetType, methodToUse);

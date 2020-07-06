@@ -51,24 +51,24 @@ import org.springframework.util.ObjectUtils;
  */
 @SuppressWarnings("serial")
 public class DependencyDescriptor extends InjectionPoint implements Serializable {
-
+	//保存所包装依赖（成员属性或者成员方法的某个参数）所在的声明类
 	private final Class<?> declaringClass;
-
+	//如果所包装的是成员方法的某个参数，则这里记录该成员方法的名称
 	@Nullable
 	private String methodName;
-
+	//如果所包装的是成员方法的某个参数，则这里记录该参数的类型
 	@Nullable
 	private Class<?>[] parameterTypes;
-
+	//如果所包装的是成员方法的某个参数，则这里记录该参数 在该函数参数列表中的索引
 	private int parameterIndex;
-
+	//如果所包装的是成员属性，则这里记录该成员属性的名称
 	@Nullable
 	private String fieldName;
-
+	//标识所包装依赖是否必要依赖
 	private final boolean required;
-
+	//标识所包装依赖是否需要饥饿加载
 	private final boolean eager;
-
+	//标识所包装依赖的嵌套级别
 	private int nestingLevel = 1;
 
 	@Nullable

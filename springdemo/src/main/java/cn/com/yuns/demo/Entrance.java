@@ -1,6 +1,7 @@
 package cn.com.yuns.demo;
 
-import cn.com.yuns.controller.WelcomeController;
+import cn.com.yuns.dao.impl.Company;
+import cn.com.yuns.dao.impl.GirlFriend;
 import cn.com.yuns.entity.User;
 import cn.com.yuns.entity.factory.UserFactoryBean;
 import cn.com.yuns.service.WelcomeService;
@@ -56,15 +57,6 @@ public class Entrance {
 	public static void main(String args[]) {
 		System.out.println("Spring 项目成功编译！！！！走注解使用Spring");
 		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(Entrance.class);
-		WelcomeService ws = (WelcomeService) applicationContext.getBean("welcomeServiceImpl");
-		ws.sayHello("wsq");
-		WelcomeController controller = (WelcomeController) applicationContext.getBean("welcomeController");
-		controller.doRequest();
-		String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
-		for (String beanDefinitionName : beanDefinitionNames) {
-			System.out.println(beanDefinitionName);
-		}
-		User user5 = (User) applicationContext.getBean("user5");
-		System.out.println("CustomizedBeanDefinitionRegistryPostProcessor 注册的额外对象" + user5);
+		Company company = (Company) applicationContext.getBean("company");
 	}
 }
